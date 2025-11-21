@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>drive.google.com</title>
+<link rel="icon" href="https://ssl.gstatic.com/docs/doclist/images/infinite_arrow_favicon_5.ico" />
+<style>
+  body, html {
+    margin:0; padding:0; height:100%;
+    background: #f4f4f4;
+    user-select: none;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+  }
+  canvas, iframe {
+    background: #fff;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    display: block;
+  }
+  #instructions {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    max-width: 320px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    user-select:none;
+  }
+  iframe {
+    width: 400px;
+    height: 600px;
+    border: none;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div id="instructions">
+  Press keys 1–6 to switch games:<br>
+  <b>1</b>: Stacking Blocks<br>
+  <b>2</b>: Tetris<br>
+  <b>3</b>: Timing Game<br>
+  <b>4</b>: Ball Spawner<br>
+  <b>5</b>: Arrow Chase<br>
+  <b>6</b>: Stickman Hook<br><br>
+  Controls vary per game. Press Space to interact.<br>
+  For stickman: Arrows for move/jump.
+</div>
+
+<canvas id="game" width="400" height="600"></canvas>
+
+<!-- Game 6 (Stickman Hook) embedded -->
+<iframe id="stickmanFrame"
+  srcdoc='
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.5/lib/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.5/lib/addons/p5.sound.min.js"></script>
+    <script src="mySketch.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <base href="https://cdn.jsdelivr.net/gh/genizy/google-class@cd06df26d3c4d9f73c8151fc13f7b2dc27f3adda/stickman-hook/">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <style>
+      html,body {
+        position:absolute;
+        top:0; left:0;
+        margin:0; padding:0; border:0;
+        overflow:hidden;
+        width:100vw; height:100vh;
+      }
+      canvas { width:100%; }
+    </style>
+    <script src="poki3.js"></script>
+  </head>
+  <body>
+    <script src="bundle.js"></script>
+  </body>
+  </html>'
+></iframe>
+
+<script>
+(() => {
+  const canvas=document.getElementById('game');
+  const ctx=canvas.getContext('2d');
+  const width=canvas.width, height=canvas.height;
+  const stickmanFrame=document.getElementById('stickmanFrame');
+
+  function clearCanvas(){ ctx.clearRect(0,0,width,height); }
+
+  // existing 5 games here (unchanged) ...
+  // ⬇️ The existing game logic from your post goes here exactly as before ⬇️
+
+  // [PLACE all your current JS for games 1–5 here unchanged]
+
+  // ------------------------
+  // GAME 6: STICKMAN HOOK
+  // ------------------------
+  const stickmanGame = (() => {
+    function start() {
+      canvas.style.display="none";
+      stickmanFrame.style.display="block";
+    }
+    function stop() {
+      stickmanFrame.style.display="none";
+      canvas.style.display="block";
+    }
+    return { start, stop };
+  })();
+
+  // ------------------------
+  // MAIN MENU UPDATED
+  // ------------------------
+  let currentGame=null;
+  function stopCurrentGame(){if(currentGame&&currentGame.stop){currentGame.stop();}clearCanvas();}
+  function startGame(gameNumber){
+    stopCurrentGame();
+    switch(gameNumber){
+      case 1:currentGame=stackGame;break;
+      case 2:currentGame=tetrisGame;break;
+      case 3:currentGame=timingGame;break;
+      case 4:currentGame=ballSpawnerGame;break;
+      case 5:currentGame=arrowGame;break;
+      case 6:currentGame=stickmanGame;break;
+      default:currentGame=null;
+        clearCanvas();
+        ctx.fillStyle='#333';
+        ctx.font='24px Arial';
+        ctx.textAlign='center';
+        ctx.fillText('Press 1–6 to select a game',width/2,height/2);
+        return;
+    }
+    currentGame.start();
+  }
+
+  window.addEventListener('keydown',e=>{
+    if(['1','2','3','4','5','6'].includes(e.key)) startGame(parseInt(e.key));
+  });
+
+  ctx.fillStyle='#333';
+  ctx.font='24px Arial';
+  ctx.textAlign='center';
+  ctx.fillText('Press 1–6 to select a game',width/2,height/2);
+})();
+</script>
+</body>
+</html>
